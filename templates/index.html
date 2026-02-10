@@ -1,0 +1,177 @@
+{% extends "base_usuario.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Comunidades</h1>
+    <p class="page-subtitle">Explore e participe das comunidades disponíveis</p>
+</div>
+
+<div class="search-container">
+    <div class="search-box collapsed" id="searchBox">
+        <span class="search-icon" onclick="toggleSearch()">
+            <img src="{{ url_for('static', filename='icons/lupa.png') }}" alt="Pesquisar">
+        </span>
+        <form method="GET" action="{{ url_for('index') }}" class="d-flex">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Buscar comunidades..."
+                   value="{{ pesquisa if pesquisa else '' }}"
+                   class="search-input"
+                   id="searchInput">
+            <button type="submit" class="btn btn-primary ml-1">Buscar</button>
+            {% if pesquisa %}
+                <a href="{{ url_for('index') }}" class="btn btn-secondary ml-1">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if pesquisa and not comunidades %}
+    <div class="empty-state">
+        <h3 class="empty-title">Nenhuma comunidade encontrada</h3>
+        <p class="empty-description">Tente ajustar sua busca ou explore outras comunidades</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Ver todas as comunidades</a>
+    </div>
+{% endif %}
+
+{% if comunidades %}
+    <div class="cards-grid">
+        {% for comunidade in comunidades %}
+            <div class="comunidade-card">
+                <img src="{{ url_for('static', filename=('uploads/comunidades/' + comunidade.img_perfil) if comunidade.img_perfil and comunidade.img_perfil != 'perfilplaceholder.png' else 'icons/perfilplaceholder.png')}}" 
+                     alt="Foto Comunidade" 
+                     class="comunidade-img">
+                
+                <div class="comunidade-body">
+                    <h3 class="comunidade-title">{{ comunidade.nm_comunidade }}</h3>
+                    
+                    <div class="comunidade-meta">
+                        <span>Criada por: {{ comunidade.nome_criador }}</span>
+                        <span>Membros: {{ comunidade.total_membros }}
+                            {% if comunidade.max_usuario and comunidade.max_usuario > 0 %}
+                                / {{ comunidade.max_usuario }}
+                            {% else %}
+                                (Sem limite)
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="comunidade-actions">
+                        <div class="comunidade-actions">
+                            <button type="button" class="btn btn-secondary btn-sm" 
+                                    onclick="toggleDescricao('{{ comunidade.id_comunidade }}')">
+                                Descrição
+                            </button>
+                            
+                            {% if comunidade.id_usuario_participante %}
+                                <!-- Se já está na comunidade -->
+                                <button class="btn btn-primary btn-sm" disabled>
+                                    Já está na comunidade
+                                </button>
+                            {% else %}
+                                <!-- Se não está na comunidade -->
+                                {% if comunidade.max_usuario > 0 and comunidade.total_membros >= comunidade.max_usuario %}
+                                    <!-- Comunidade cheia -->
+                                    <button class="btn btn-danger btn-sm" disabled>
+                                        Comunidade Cheia
+                                    </button>
+                                {% else %}
+                                    <!-- Pode entrar -->
+                                    <a href="{{ url_for('entrar_comunidade', id_comunidade=comunidade.id_comunidade) }}" 
+                                        class="btn btn-primary btn-sm">
+                                        Entrar
+                                    </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="descricao" id="descricao-{{ comunidade.id_comunidade }}" style="display: none;">
+                        <p class="mt-2">{{ comunidade.ds_comunidade }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><img src="static/icons/comunidadesicon.png"></div>
+        <h3 class="empty-title">Nenhuma comunidade disponível</h3>
+        <p class="empty-description">Seja o primeiro a criar uma comunidade!</p>
+        <a href="{{ url_for('criar_comunidade') }}" class="btn btn-primary">Criar Comunidade</a>
+    </div>
+{% endif %}
+
+<script>
+    function toggleDescricao(idComunidade) {
+        const descricao = document.getElementById('descricao-' + idComunidade);
+        const isVisible = descricao.style.display === 'block';
+        
+        // Fecha todas as descrições
+        document.querySelectorAll('.descricao').forEach(d => {
+            d.style.display = 'none';
+        });
+        
+        // Abre a descrição selecionada se não estava visível
+        if (!isVisible) {
+            descricao.style.display = 'block';
+        }
+    }
+    function toggleSearch() {
+        const searchBox = document.getElementById('searchBox');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Alterna entre collapsed e expanded
+        if (searchBox.classList.contains('collapsed')) {
+            searchBox.classList.remove('collapsed');
+            searchBox.classList.add('expanded');
+            
+            // Foca no input após a animação
+            setTimeout(() => {
+                if (searchInput) searchInput.focus();
+            }, 300);
+        } else {
+            searchBox.classList.remove('expanded');
+            searchBox.classList.add('collapsed');
+        }
+    }
+    
+    // Fecha a barra de pesquisa ao clicar fora
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchBox');
+        const searchIcon = document.querySelector('.search-icon');
+        
+        if (searchBox && searchBox.classList.contains('expanded')) {
+            // Se o clique não foi no ícone nem dentro da search-box
+            if (!searchIcon.contains(event.target) && !searchBox.contains(event.target)) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Fecha ao pressionar ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox && searchBox.classList.contains('expanded')) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Se já houver texto de pesquisa, expande automaticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchBox = document.getElementById('searchBox');
+        
+        if (searchInput && searchInput.value) {
+            if (searchBox) {
+                searchBox.classList.remove('collapsed');
+                searchBox.classList.add('expanded');
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icons/iconefalai.png') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+    <title>Editar Perfil Falaí</title>
+</head>
+<body>
+    <div class="auth-container">
+        <form method="POST" class="auth-box" enctype="multipart/form-data"> 
+            <div class="page-header">
+                <h1>Editar Perfil</h1>
+            </div>
+    
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alert-container">
+                        {% for categoria, mensagem in messages %}
+                            <div class="alert alert-{{ 'success' if categoria == 'sucesso' else 'error' if categoria == 'erro' else 'info' }}">
+                                {{ mensagem }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="form-section">
+                <h3 class="form-section-title">Foto de Perfil</h3>
+                <div class="upload-container">
+                    <label for="imagem_usuario" class="upload-label">
+                        <img src="{{ url_for('static', 
+                            filename=('uploads/usuarios/' + usuarios.img_perfil) 
+                            if usuarios.img_perfil and usuarios.img_perfil != 'perfilplaceholder.png' 
+                            else 'icons/perfilplaceholder.png') 
+                        }}"
+                             alt="Foto perfil"
+                             id="preview-imagem"
+                             class="upload-preview">
+                    </label>
+                    <input type="file"
+                           id="imagem_usuario"
+                           name="imagem_usuario"
+                           accept="image/*"
+                           class="file-input"
+                           onchange="previewImage(this)">
+                    <p class="upload-hint">Clique para alterar foto</p>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="form-section-title">Informações Pessoais</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nome_usuario" class="form-label">Nome de usuário:</label>
+                        <input type="text" id="nome_usuario" name="nome_usuario" 
+                               class="form-control" required 
+                               value="{{ usuarios.nm_login }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="biografia" class="form-label">Biografia:</label>
+                    <textarea id="biografia" name="biografia" class="form-control" rows="4">
+                        {{- usuarios.ds_usuario -}}
+                    </textarea>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                <a href="{{ url_for('perfil', id_usuario=usuarios.id_usuario) }}" 
+                   class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview-imagem');
+            const file = input.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = "{{ url_for('static', filename=('uploads/usuarios/' + usuarios.img_perfil) if usuarios.img_perfil and usuarios.img_perfil != 'perfilplaceholder.png' else 'icons/perfilplaceholder.png')}}";
+            }
+        }
+    </script>
+</body>
+</html>

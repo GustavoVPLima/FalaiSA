@@ -1,0 +1,49 @@
+{% extends "base_usuario.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Gerenciar Comunidades</h1>
+</div>
+
+{% if comunidades %}
+    <div class="cards-grid">
+        {% for comunidade in comunidades %}
+            <div class="comunidade-card">
+                <img src="{{ url_for('static', filename=('uploads/comunidades/' + comunidade.img_perfil) if comunidade.img_perfil and comunidade.img_perfil != 'perfilplaceholder.png' else 'icons/perfilplaceholder.png')}}" 
+                     alt="Foto Comunidade" 
+                     class="comunidade-img">
+                
+                <div class="comunidade-body">
+                    <h3 class="comunidade-title">{{ comunidade.nm_comunidade }}</h3>
+                    
+                    <div class="comunidade-meta">
+                        <span>Criada por: {{ comunidade.nome_criador }}</span>
+                        <span>Membros: {{ comunidade.total_membros }}
+                            {% if comunidade.max_usuario and comunidade.max_usuario > 0 %}
+                                / {{ comunidade.max_usuario }}
+                            {% else %}
+                                (Sem limite)
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="comunidade-actions">
+                        <a href="{{url_for('editar_comunidade', id_comunidade=comunidade.id_comunidade)}}" 
+                           class="btn btn-primary btn-sm">Editar</a>
+                        <a href="{{url_for('excluir_comunidade', id_comunidade=comunidade.id_comunidade)}}" 
+                           onclick="return confirm('Tem certeza que deseja excluir esta comunidade?')" 
+                           class="btn btn-danger btn-sm">Excluir</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><img src="static/icons/comunidadesicon.png"></div>
+        <h3 class="empty-title">Você não possui nenhuma comunidade ainda</h3>
+        <p class="empty-description">Crie sua primeira comunidade para começar</p>
+        <a href="{{ url_for('criar_comunidade') }}" class="btn btn-primary">Criar Primeira Comunidade</a>
+    </div>
+{% endif %}
+{% endblock %}

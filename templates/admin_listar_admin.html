@@ -1,0 +1,177 @@
+{% extends "base_admin.html "%}
+{% block content %}
+<script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+<div class="page-header">
+    <h1>Gerenciar ADM</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for categoria, mensagem in messages %}
+                <div class="alert alert-{{ 'success' if categoria == 'sucesso' else 'error' if categoria == 'erro' else 'info' }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="stats-grid">
+    <div class="stat-card-m">
+        <div class="stat-number">{{ total_usuarios }}</div>
+        <div class="stat-label">Total de Admins</div>
+    </div>
+</div>
+
+<div class="search-container">
+    <div class="search-box collapsed" id="searchBox">
+        <span class="search-icon" onclick="toggleSearch()">
+            <img src="{{ url_for('static', filename='icons/lupa.png') }}" alt="Pesquisar">
+        </span>
+        <form method="GET" action="{{ url_for('admin_listar_admin') }}" class="d-flex">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Buscar comunidades..."
+                   value="{{ pesquisa if pesquisa else '' }}"
+                   class="search-input"
+                   id="searchInput">
+            <button type="submit" class="btn btn-primary ml-1">Buscar</button>
+            {% if pesquisa %}
+                <a href="{{ url_for('admin_listar_admin') }}" class="btn btn-secondary ml-1">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if admins %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    <th>Senha</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.id_admin }}</td>
+                        <td>
+                            <div class="avatar-cell">
+                                {% if admin.img_perfil and admin.img_perfil != 'perfilplaceholder.png' %}
+                                    <img src="{{ url_for('static', filename='uploads/usuarios/' + usuario.img_perfil)}}" 
+                                         alt="{{ admin.nm_login }}"
+                                         class="table-avatar">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='icons/perfilplaceholder.png')}}" 
+                                         alt="{{ admin.nm_login }}"
+                                         class="table-avatar">
+                                {% endif %}
+                                <div>
+                                    <strong>{{ admin.nm_login }}</strong><br>
+                                    <!-- <small>Criado: {{ admins.dt_cadastro.strftime('%d/%m/%Y') if usuario.dt_cadastro else 'N/A' }}</small> -->
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ admin.nm_email }}</td>
+                        <td>{{ admin.ds_senha }}</td>
+                        <td>
+                            {% if admin.id_admin != session.idadm %}
+                                <a href="{{ url_for('excluir_admin', id_admin=admin.id_admin) }}" 
+                                    onclick="return confirm('Tem certeza que deseja excluir o usuário {{admin.nm_login}}?')"
+                                    class="btn btn-danger btn-sm">
+                                    Excluir
+                                </a>
+                            {% else %}
+                                <span class="badge badge-primary">Você</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><img src="static/icons/usuarioicon.png"></div>
+        <h3 class="empty-title">Nenhum usuário encontrado</h3>
+        <p class="empty-description">
+            {% if pesquisa %}
+                Nenhum usuário corresponde à sua pesquisa.
+            {% else %}
+                Não há usuários cadastrados no sistema.
+            {% endif %}
+        </p>
+        {% if pesquisa %}
+            <a href="{{ url_for('admin_listar_usuarios') }}" class="btn btn-primary">Ver todos os usuários</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="btn-group mt-3">
+    <a href="{{ url_for('admin_index') }}" class="btn btn-secondary">← Voltar ao Dashboard</a>
+</div>
+
+<script>
+    function toggleSearch() {
+        const searchBox = document.getElementById('searchBox');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Alterna entre collapsed e expanded
+        if (searchBox.classList.contains('collapsed')) {
+            searchBox.classList.remove('collapsed');
+            searchBox.classList.add('expanded');
+            
+            // Foca no input após a animação
+            setTimeout(() => {
+                if (searchInput) searchInput.focus();
+            }, 300);
+        } else {
+            searchBox.classList.remove('expanded');
+            searchBox.classList.add('collapsed');
+        }
+    }
+    
+    // Fecha a barra de pesquisa ao clicar fora
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchBox');
+        const searchIcon = document.querySelector('.search-icon');
+        
+        if (searchBox && searchBox.classList.contains('expanded')) {
+            // Se o clique não foi no ícone nem dentro da search-box
+            if (!searchIcon.contains(event.target) && !searchBox.contains(event.target)) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Fecha ao pressionar ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox && searchBox.classList.contains('expanded')) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Se já houver texto de pesquisa, expande automaticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchBox = document.getElementById('searchBox');
+        
+        if (searchInput && searchInput.value) {
+            if (searchBox) {
+                searchBox.classList.remove('collapsed');
+                searchBox.classList.add('expanded');
+            }
+        }
+    });
+</script>
+{% endblock %}

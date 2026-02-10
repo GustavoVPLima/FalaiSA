@@ -1,0 +1,336 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+<div class="page-header">
+    <h1>Gerenciar Comunidades</h1>
+    <p class="page-subtitle">Administre todas as comunidades do sistema</p>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for categoria, mensagem in messages %}
+                <div class="alert alert-{{ 'success' if categoria == 'sucesso' else 'error' if categoria == 'erro' else 'info' }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Estatísticas -->
+<div class="stats-grid">
+    <div class="stat-card-l">
+        <div class="stat-number">{{ total_comunidades }}</div>
+        <div class="stat-label">Total de Comunidades</div>
+    </div>
+    <div class="stat-card-m">
+        <div class="stat-number">{{ total_membros }}</div>
+        <div class="stat-label">Total de Membros</div>
+    </div>
+    <div class="stat-card-r">
+        <div class="stat-number">{{ media_membros }}</div>
+        <div class="stat-label">Média por Comunidade</div>
+    </div>
+</div>
+
+<!-- Barra de busca e filtros -->
+<div class="search-container">
+    <div class="search-box collapsed" id="searchBox">
+        <span class="search-icon" onclick="toggleSearch()">
+            <img src="{{ url_for('static', filename='icons/lupa.png') }}" alt="Pesquisar">
+        </span>
+        <form method="GET" action="{{ url_for('admin_listar_comunidades') }}" class="d-flex">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Buscar comunidades..."
+                   value="{{ pesquisa if pesquisa else '' }}"
+                   class="search-input"
+                   id="searchInput">
+            <button type="submit" class="btn btn-primary ml-1">Buscar</button>
+            {% if pesquisa %}
+                <a href="{{ url_for('admin_listar_comunidades') }}" class="btn btn-secondary ml-1">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if comunidades %}
+    <!-- Tabela de comunidades -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Comunidade</th>
+                    <th>Criador</th>
+                    <th>Membros</th>
+                    <th>Status</th>
+                    <th>Criada em</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comunidade in comunidades %}
+                    <tr>
+                        <td>{{ comunidade.id_comunidade }}</td>
+                        <td>
+                            <div class="avatar-cell">
+                                <img src="{{ url_for('static', filename=('uploads/comunidades/' + comunidade.img_perfil) if comunidade.img_perfil and comunidade.img_perfil != 'perfilplaceholder.png' else 'icons/perfilplaceholder.png')}}" 
+                                     alt="{{ comunidade.nm_comunidade }}"
+                                     class="table-avatar">
+                                <div>
+                                    <strong>{{ comunidade.nm_comunidade }}</strong><br>
+                                    <small>{{ comunidade.ds_comunidade|truncate(50) if comunidade.ds_comunidade else 'Sem descrição' }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="avatar-cell">
+                                <img src="{{ url_for('static', 
+                                    filename=('uploads/usuarios/' + comunidade.criador_foto) 
+                                    if comunidade.criador_foto and comunidade.criador_foto != 'perfilplaceholder.png' 
+                                    else 'icons/perfilplaceholder.png'
+                                )}}"
+                                    alt="{{ comunidade.nome_criador }}"
+                                    class="table-avatar" style="width: 30px; height: 30px;">
+                                <div>
+                                    <strong>{{ comunidade.nome_criador }}</strong><br>
+                                    <small>ID: {{ comunidade.criado_por }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="badge badge-primary">{{ comunidade.total_membros }}</span>
+                                {% if comunidade.max_usuario and comunidade.max_usuario > 0 %}
+                                    <small>de {{ comunidade.max_usuario }}</small>
+                                {% else %}
+                                    <small>sem limite</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if comunidade.total_membros == 0 %}
+                                <span class="badge badge-warning">Vazia</span>
+                            {% elif comunidade.max_usuario and comunidade.max_usuario > 0 and comunidade.total_membros >= comunidade.max_usuario %}
+                                <span class="badge badge-danger">Cheia</span>
+                            {% elif comunidade.total_membros >= 10 %}
+                                <span class="badge badge-success">Ativa</span>
+                            {% else %}
+                                <span class="badge badge-primary">Normal</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if comunidade.dt_criacao %}
+                                {{ comunidade.dt_criacao.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column" style="gap: 5px;">
+                                <!-- Botão para ver detalhes -->
+                                <button type="button" 
+                                        class="btn btn-secondary btn-sm"
+                                        onclick="document.getElementById('detalhes-{{ comunidade.id_comunidade }}').style.display = 
+                                                (document.getElementById('detalhes-{{ comunidade.id_comunidade }}').style.display === 'table-row') 
+                                                ? 'none' : 'table-row'">
+                                    Detalhes
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Linha de detalhes (oculta por padrão) -->
+                    <tr id="detalhes-{{ comunidade.id_comunidade }}" style="display: none;">
+                        <td colspan="7">
+                            <div class="comunidade-detalhes p-3">
+                                <div class="d-flex justify-between align-center mb-2">
+                                    <h4>Detalhes da Comunidade</h4>
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm"
+                                            onclick="document.getElementById('detalhes-{{ comunidade.id_comunidade }}').style.display = 'none'">
+                                        X
+                                    </button>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Nome:</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               value="{{ comunidade.nm_comunidade }}" 
+                                               readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Criada em:</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               value="{{ comunidade.dt_criacao.strftime('%d/%m/%Y %H:%M') if comunidade.dt_criacao else 'N/A' }}" 
+                                               readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Descrição:</label>
+                                    <textarea class="form-control" rows="3" readonly>{{ comunidade.ds_comunidade }}</textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Membros atuais:</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               value="{{ comunidade.total_membros }}" 
+                                               readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Limite de membros:</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               value="{{ comunidade.max_usuario if comunidade.max_usuario and comunidade.max_usuario > 0 else 'Sem limite' }}" 
+                                               readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Status:</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               value="{{ 
+                                                   'Cheia' if comunidade.max_usuario and comunidade.max_usuario > 0 and comunidade.total_membros >= comunidade.max_usuario else
+                                                   'Vazia' if comunidade.total_membros == 0 else
+                                                   'Ativa' if comunidade.total_membros >= 10 else
+                                                   'Normal'
+                                               }}" 
+                                               readonly>
+                                    </div>
+                                </div>
+                                    <a href="{{ url_for('admin_excluir_comunidade', id_comunidade=comunidade.id_comunidade) }}" 
+                                        onclick="return confirm('Tem certeza que deseja excluir a comunidade')"
+                                        class="btn btn-danger btn-sm">
+                                        Excluir Comunidade
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <!-- Estado vazio -->
+    <div class="empty-state">
+        <div class="empty-icon"><img src="static/icons/comunidadesicon.png"></div>
+        <h3 class="empty-title">
+            {% if pesquisa %}
+                Nenhuma comunidade encontrada
+            {% else %}
+                Nenhuma comunidade cadastrada
+            {% endif %}
+        </h3>
+        <p class="empty-description">
+            {% if pesquisa %}
+                Nenhuma comunidade corresponde aos seus critérios de busca.
+            {% else %}
+                Ainda não há comunidades cadastradas no sistema.
+            {% endif %}
+        </p>
+        {% if pesquisa %}
+            <a href="{{ url_for('admin_listar_comunidades') }}" class="btn btn-primary">Ver todas as comunidades</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<!-- Botão para voltar -->
+<div class="btn-group mt-3">
+    <a href="{{ url_for('admin_index') }}" class="btn btn-secondary">← Voltar ao Dashboard</a>
+</div>
+
+<style>
+    .comunidade-detalhes {
+        background: rgba(132, 0, 255, 0.05);
+        border-radius: var(--border-radius);
+        border: 1px solid rgba(132, 0, 255, 0.2);
+    }
+    
+    .justify-between {
+        justify-content: space-between;
+    }
+    
+    .flex-column {
+        flex-direction: column;
+    }
+    
+    .d-flex {
+        display: flex;
+    }
+    
+    .align-center {
+        align-items: center;
+    }
+</style>
+
+<script>
+    function toggleSearch() {
+        const searchBox = document.getElementById('searchBox');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Alterna entre collapsed e expanded
+        if (searchBox.classList.contains('collapsed')) {
+            searchBox.classList.remove('collapsed');
+            searchBox.classList.add('expanded');
+            
+            // Foca no input após a animação
+            setTimeout(() => {
+                if (searchInput) searchInput.focus();
+            }, 300);
+        } else {
+            searchBox.classList.remove('expanded');
+            searchBox.classList.add('collapsed');
+        }
+    }
+    
+    // Fecha a barra de pesquisa ao clicar fora
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchBox');
+        const searchIcon = document.querySelector('.search-icon');
+        
+        if (searchBox && searchBox.classList.contains('expanded')) {
+            // Se o clique não foi no ícone nem dentro da search-box
+            if (!searchIcon.contains(event.target) && !searchBox.contains(event.target)) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Fecha ao pressionar ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox && searchBox.classList.contains('expanded')) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Se já houver texto de pesquisa, expande automaticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchBox = document.getElementById('searchBox');
+        
+        if (searchInput && searchInput.value) {
+            if (searchBox) {
+                searchBox.classList.remove('collapsed');
+                searchBox.classList.add('expanded');
+            }
+        }
+    });
+</script>
+{% endblock %}
