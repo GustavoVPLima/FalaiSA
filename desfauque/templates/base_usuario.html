@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falaí</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icons/iconefalai.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navbar do Usuário -->
+        <nav class="navbar navbar-user">
+            <div class="navbar-header">
+                <div class="logo">
+                    <img src="{{ url_for('static', filename='icons/iconefalai.png') }}" alt="Falaí Logo">
+                </div>
+                <span>Falaí</span>
+            </div>
+
+            <div class="user-profile">
+                <a href="{{ url_for('perfil', id_usuario=session.id)}}">
+                    {% if session.foto_perfil %}
+                        {% if session.foto_perfil != 'perfilplaceholder.png' %}
+                            <img src="{{ url_for('static', filename='uploads/usuarios/' + session.foto_perfil)}}" 
+                                 alt="Perfil" 
+                                 class="user-avatar">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='icons/perfilplaceholder.png')}}" 
+                                 alt="Perfil" 
+                                 class="user-avatar">
+                        {% endif %}
+                    {% else %}
+                        <img src="{{ url_for('static', filename='icons/perfilplaceholder.png')}}" 
+                             alt="Perfil" 
+                             class="user-avatar">
+                    {% endif %}
+                    <div class="user-name">{{ session['usuario']}}</div>
+                </a>
+            </div>
+
+            <div class="nav-menu">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}">
+                            <span class="icon"><img src="{{ url_for('static', filename='icons/comunidadesicon.png') }}"></span>
+                            <span>Comunidades</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('minhas_comunidades') }}" class="{% if request.endpoint == 'minhas_comunidades' %}active{% endif %}">
+                            <span class="icon"><img src="{{url_for('static',filename='icons/usuarioicon.png')}}"></span>
+                            <span>Minhas comunidades</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('criar_comunidade') }}" class="{% if request.endpoint == 'criar_comunidade' %}active{% endif %}">
+                            <span class="icon"><img src="{{url_for('static', filename='icons/maisicon.png')}}"></span>
+                            <span>Criar comunidade</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('gerenciar_comunidades')}}" class="{% if request.endpoint == 'gerenciar_comunidades' %}active{% endif %}">
+                            <span class="icon"><img src="{{url_for('static', filename='icons/configicon.png')}}"></span>
+                            <span>Gerenciar comunidades</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="nav-footer">
+                <a href="javascript:void(0)" onclick="openConfigModal()">
+                    <span class="icon"><img src="{{url_for('static', filename='icons/configicon.png')}}"></span>
+                    <span>Configurações</span>
+                </a>
+                <a href="{{ url_for('logout') }}">
+                    <span class="icon"><img src="{{url_for('static', filename='icons/sairicon.png')}}"></span>
+                    <span>Sair</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px; background: var(--card-bg); border-radius: var(--border-radius); padding: 30px;">
+            <span class="close-modal" onclick="closeConfigModal()">&times;</span>
+            
+            <div class="modal-header" style="margin-bottom: 25px;">
+                <h2 style="color: white; font-size: 1.8rem; display: flex; align-items: center; gap: 10px;">
+                    <img src="{{ url_for('static', filename='icons/configicon.png') }}" style="width: 30px; height: 30px;">
+                    Configurações de Usuário
+                </h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-section" style="margin-bottom: 25px;">
+                    <h3 class="form-section-title">Tema</h3>
+                    <button type="button" class="btn btn-secondary w-100 d-flex align-center justify-between theme-toggle-btn" onclick="toggleTheme()" style="padding: 15px; font-size: 1rem;">
+                        <span class="theme-text">Alternar Tema</span>
+                    </button>
+                </div>
+                
+                <div class="form-section" style="margin-bottom: 25px;">
+                    <a href="{{ url_for('sobre_nos') }}" class="btn btn-secondary w-100 d-flex align-center justify-between" style="padding: 15px; text-decoration: none; margin-bottom: 10px;">
+                        <span>Sobre Nós</span>
+                        <img src="{{ url_for('static', filename='icons/usuarioicon.png') }}" style="width: 20px; height: 20px;">
+                    </a>
+                </div>
+                
+                <div class="modal_content_area" id="modal_content_area" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <!-- Conteúdo dinâmico pode ser carregado aqui -->
+                </div>
+            </div>
+            
+            <div class="modal-footer" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <button type="button" class="btn btn-primary" onclick="closeConfigModal()" style="width: 100%;">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir o modal
+        function openConfigModal() {
+            document.getElementById('config-modal').style.display = 'block';
+        }
+        
+        // Função para fechar o modal
+        function closeConfigModal() {
+            document.getElementById('config-modal').style.display = 'none';
+        }
+        
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('config-modal');
+            if (event.target == modal) {
+                closeConfigModal();
+            }
+        }
+        
+        // Fechar modal com tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeConfigModal();
+            }
+        });
+    </script>
+    
+    <script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dados_loader.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+{% extends "base_usuario.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Criar Nova Comunidade</h1>
+    <p class="page-subtitle">Crie uma comunidade para compartilhar interesses</p>
+</div>
+
+<div class="form-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for categoria, mensagem in messages %}
+                    <div class="alert alert-{{ 'success' if categoria == 'sucesso' else 'error' if categoria == 'erro' else 'info' }}">
+                        {{ mensagem }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-section">
+            <h3 class="form-section-title">Imagem da Comunidade</h3>
+            <div class="upload-container">
+                <label for="imagem_comunidade" class="upload-label">
+                    <img src="{{ url_for('static', filename='icons/perfilplaceholder.png')}}"
+                         alt="Foto comunidade"
+                         id="preview-imagem"
+                         class="upload-preview">
+                </label>
+                <input type="file"
+                       id="imagem_comunidade"
+                       name="imagem_comunidade"
+                       accept="image/*"
+                       class="file-input"
+                       onchange="previewImage(this)">
+                <p class="upload-hint">Clique para adicionar imagem</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="form-section-title">Informações da Comunidade</h3>
+            
+            <div class="form-group">
+                <label for="nome_comunidade" class="form-label">Nome da Comunidade:</label>
+                <input type="text" id="nome_comunidade" name="nome_comunidade" class="form-control" required 
+                       placeholder="Digite o nome da comunidade">
+            </div>
+
+            <div class="form-group">
+                <label for="descricao" class="form-label">Descrição da comunidade:</label>
+                <textarea id="descricao" name="descricao" class="form-control" rows="4"
+                          placeholder="Descreva sobre o que é esta comunidade"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="max_usuario" class="form-label">Quantidade Máxima de Usuários:</label>
+                <input type="number" id="max_usuario" name="max_usuario" 
+                       class="form-control" min="2" max="1000" value="50" required
+                       placeholder="Digite o número máximo de usuários">
+                <small class="form-text">Mínimo: 2 usuários | Máximo: 1000 usuários</small>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Criar Comunidade</button>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('preview-imagem');
+        const file = input.files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "{{ url_for('static', filename='icons/perfilplaceholder.png') }}";
+        }
+    }
+</script>
+{% endblock %}

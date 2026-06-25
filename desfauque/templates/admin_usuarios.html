@@ -1,0 +1,323 @@
+{% extends "base_admin.html" %}
+
+{% block content %}
+<script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+<div class="page-header">
+    <h1>Gerenciar Usuários</h1>
+    <p class="page-subtitle">Administre os usuários do sistema</p>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="alert-container">
+            {% for categoria, mensagem in messages %}
+                <div class="alert alert-{{ 'success' if categoria == 'sucesso' else 'error' if categoria == 'erro' else 'info' }}">
+                    {{ mensagem }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="stats-grid">
+    <div class="stat-card-l">
+        <div class="stat-number">{{ total_usuarios }}</div>
+        <div class="stat-label">Total de Usuários</div>
+    </div>
+    <div class="stat-card-m">
+        <div class="stat-number">{{ usuarios_com_comunidades }}</div>
+        <div class="stat-label">Com Comunidades</div>
+    </div>
+    <div class="stat-card-r">
+        <div class="stat-number">{{ total_comunidades }}</div>
+        <div class="stat-label">Total Comunidades</div>
+    </div>
+</div>
+
+<div class="search-container">
+    <div class="search-box collapsed" id="searchBox">
+        <span class="search-icon" onclick="toggleSearch()">
+            <img src="{{ url_for('static', filename='icons/lupa.png') }}" alt="Pesquisar">
+        </span>
+        <form method="GET" action="{{ url_for('admin_listar_usuarios') }}" class="d-flex">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Buscar comunidades..."
+                   value="{{ pesquisa if pesquisa else '' }}"
+                   class="search-input"
+                   id="searchInput">
+            <button type="submit" class="btn btn-primary ml-1">Buscar</button>
+            {% if pesquisa %}
+                <a href="{{ url_for('admin_listar_usuarios') }}" class="btn btn-secondary ml-1">Limpar</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if usuarios %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    <th>Senha</th>
+                    <th>Telefone</th>
+                    <th>Comunidades</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id_usuario }}</td>
+                        <td>
+                            <div class="avatar-cell">
+                                {% if usuario.img_perfil and usuario.img_perfil != 'perfilplaceholder.png' %}
+                                    <img src="{{ url_for('static', filename='uploads/usuarios/' + usuario.img_perfil)}}" 
+                                         alt="{{ usuario.nm_login }}"
+                                         class="table-avatar">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='icons/perfilplaceholder.png')}}" 
+                                         alt="{{ usuario.nm_login }}"
+                                         class="table-avatar">
+                                {% endif %}
+                                <div>
+                                    <strong>{{ usuario.nm_login }}</strong><br>
+                                    <small>Criado: {{ usuario.dt_cadastro.strftime('%d/%m/%Y') if usuario.dt_cadastro else 'N/A' }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ usuario.nm_email }}</td>
+                        <td>{{ usuario.ds_senha }}</td>
+                        <td>{{ usuario.nr_numero }}</td>
+                        <td>
+                            {% if usuario.total_comunidades %}
+                                <span class="badge badge-primary">{{ usuario.total_comunidades }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.id_usuario != session.id %}
+                                <button type="button" 
+                                    class="btn btn-secondary btn-sm toggle-user-details"
+                                    onclick="toggleUsuarioDetalhes('{{ usuario.id_usuario }}')"
+                                    data-usuario="{{ usuario.id_usuario }}">
+                                    Detalhes
+                                </button>
+                            {% else %}
+                                <span class="badge badge-primary">Você</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr id="detalhes-{{ usuario.id_usuario }}" style="display: none;">
+                        <td colspan="7">
+                            <div class="usuario-detalhes p-3">
+                                <div class="d-flex justify-between align-center mb-2">
+                                    <h4>Detalhes do Usuário</h4>
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm"
+                                            onclick="document.getElementById('detalhes-{{ usuario.id_usuario }}').style.display = 'none'">
+                                        X
+                                    </button>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Nome de Usuário:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.nm_login }}" 
+                                            readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Email:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.nm_email }}" 
+                                            readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Telefone:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.nr_numero }}" 
+                                            readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Cadastrado em:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.dt_cadastro.strftime('%d/%m/%Y %H:%M') if usuario.dt_cadastro else 'N/A' }}" 
+                                            readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Biografia:</label>
+                                    <textarea class="form-control" rows="3" readonly>{{ usuario.ds_usuario or 'Sem biografia' }}</textarea>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Comunidades Criadas:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.total_comunidades or 0 }}" 
+                                            readonly>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Senha:</label>
+                                        <input type="text" 
+                                            class="form-control" 
+                                            value="{{ usuario.ds_senha }}" 
+                                            readonly>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botões de ação -->
+                                <div class="btn-group mt-2" style="display: flex; gap: 10px;">
+                                    {% if usuario.id_usuario != session.id %}
+                                        <a href="{{ url_for('admin_excluir_usuario', id_usuario=usuario.id_usuario) }}" 
+                                            onclick="return confirm('Tem certeza que deseja excluir o usuário {{usuario.nm_login}}?')"
+                                            class="btn btn-danger btn-sm">
+                                            Excluir Usuário
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon"><img src="static/icons/usuarioicon.png"></div>
+        <h3 class="empty-title">Nenhum usuário encontrado</h3>
+        <p class="empty-description">
+            {% if pesquisa %}
+                Nenhum usuário corresponde à sua pesquisa.
+            {% else %}
+                Não há usuários cadastrados no sistema.
+            {% endif %}
+        </p>
+        {% if pesquisa %}
+            <a href="{{ url_for('admin_listar_usuarios') }}" class="btn btn-primary">Ver todos os usuários</a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<div class="btn-group mt-3">
+    <a href="{{ url_for('admin_index') }}" class="btn btn-secondary">← Voltar ao Dashboard</a>
+</div>
+
+<script>
+    function toggleSearch() {
+        const searchBox = document.getElementById('searchBox');
+        const searchInput = document.getElementById('searchInput');
+        
+        // Alterna entre collapsed e expanded
+        if (searchBox.classList.contains('collapsed')) {
+            searchBox.classList.remove('collapsed');
+            searchBox.classList.add('expanded');
+            
+            // Foca no input após a animação
+            setTimeout(() => {
+                if (searchInput) searchInput.focus();
+            }, 300);
+        } else {
+            searchBox.classList.remove('expanded');
+            searchBox.classList.add('collapsed');
+        }
+    }
+    
+    // Fecha a barra de pesquisa ao clicar fora
+    document.addEventListener('click', function(event) {
+        const searchBox = document.getElementById('searchBox');
+        const searchIcon = document.querySelector('.search-icon');
+        
+        if (searchBox && searchBox.classList.contains('expanded')) {
+            // Se o clique não foi no ícone nem dentro da search-box
+            if (!searchIcon.contains(event.target) && !searchBox.contains(event.target)) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Fecha ao pressionar ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const searchBox = document.getElementById('searchBox');
+            if (searchBox && searchBox.classList.contains('expanded')) {
+                searchBox.classList.remove('expanded');
+                searchBox.classList.add('collapsed');
+            }
+        }
+    });
+    
+    // Se já houver texto de pesquisa, expande automaticamente
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const searchBox = document.getElementById('searchBox');
+        
+        if (searchInput && searchInput.value) {
+            if (searchBox) {
+                searchBox.classList.remove('collapsed');
+                searchBox.classList.add('expanded');
+            }
+        }
+    });
+    function toggleUsuarioDetalhes(idUsuario) {
+    const detalhes = document.getElementById('detalhes-' + idUsuario);
+    const botao = document.querySelector(`button[data-usuario="${idUsuario}"]`);
+    
+    // Verifica se os detalhes estão visíveis
+    const isVisible = detalhes.style.display === 'table-row';
+    
+    // Fecha todos os outros detalhes abertos
+    document.querySelectorAll('[id^="detalhes-"]').forEach(d => {
+        if (d.id !== 'detalhes-' + idUsuario) {
+            d.style.display = 'none';
+        }
+    });
+    
+    // Fecha todos os outros botões de detalhes
+    document.querySelectorAll('.toggle-user-details').forEach(btn => {
+        if (btn.getAttribute('data-usuario') !== idUsuario.toString()) {
+            btn.textContent = 'Detalhes';
+        }
+    });
+    
+    // Alterna visibilidade
+    if (isVisible) {
+        detalhes.style.display = 'none';
+        if (botao) botao.textContent = 'Detalhes';
+    } else {
+        detalhes.style.display = 'table-row';
+    }
+    }
+
+    // Fechar detalhes ao clicar fora (opcional)
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.toggle-user-details') && !event.target.closest('.usuario-detalhes')) {
+            document.querySelectorAll('[id^="detalhes-"]').forEach(d => {
+                d.style.display = 'none';
+            });
+            document.querySelectorAll('.toggle-user-details').forEach(btn => {
+                btn.textContent = 'Detalhes';
+            });
+        }
+    });
+</script>
+{% endblock %}

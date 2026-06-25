@@ -1,0 +1,4 @@
+cOORDENADAS PORTAL END: 1816 137
+altura do portal do nether: 68
+portal de volta do end: 1117 -108
+farm de cana: -288 -496
