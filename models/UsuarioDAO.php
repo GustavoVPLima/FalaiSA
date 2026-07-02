@@ -5,7 +5,9 @@ class UsuarioDAO
     public static function findByLoginAndPassword($login, $password)
     {
         $result = Database::query(
-            "SELECT *, 'usuario' as tipo FROM tb_usuario WHERE nm_login = ? AND ds_senha = ?",
+            "SELECT id_usuario, nm_login, ds_senha, nm_email, img_perfil, dt_cadastro, 'usuario' as tipo 
+             FROM tb_usuario 
+             WHERE nm_login = ? AND ds_senha = ?",
             [$login, $password]
         );
 
@@ -25,7 +27,9 @@ class UsuarioDAO
     public static function findById($id)
     {
         $result = Database::query(
-            "SELECT * FROM tb_usuario WHERE id_usuario = ?",
+            "SELECT id_usuario, nm_login, ds_senha, nm_email, img_perfil, dt_cadastro 
+             FROM tb_usuario 
+             WHERE id_usuario = ?",
             [$id]
         );
 
@@ -35,7 +39,9 @@ class UsuarioDAO
     public static function findByLogin($login)
     {
         $result = Database::query(
-            "SELECT * FROM tb_usuario WHERE nm_login = ?",
+            "SELECT id_usuario, nm_login, ds_senha, nm_email, img_perfil, dt_cadastro 
+             FROM tb_usuario 
+             WHERE nm_login = ?",
             [$login]
         );
 
@@ -76,7 +82,11 @@ class UsuarioDAO
 
     public static function getAllUsers()
     {
-        $result = Database::query("SELECT * FROM tb_usuario ORDER BY nm_login");
+        $result = Database::query(
+            "SELECT id_usuario, nm_login, ds_senha, nm_email, img_perfil, dt_cadastro 
+             FROM tb_usuario 
+             ORDER BY nm_login"
+        );
         return Database::fetchAll($result);
     }
 

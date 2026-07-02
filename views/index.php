@@ -1,7 +1,11 @@
 <?php include __DIR__ . '/cabecalho.php'; ?>
 
 <div class="dashboard-header">
-    <h1>Bem-vindo, <?php echo $_SESSION['usuario']; ?>!</h1>
+    <h1>
+        Bem-vindo, 
+        <span class="text-nowrap-truncate-inline"><?php echo htmlspecialchars($_SESSION['usuario'] ?? 'Usuário'); ?></span>
+        !
+    </h1>
     <p>Suas comunidades</p>
 </div>
 
@@ -16,12 +20,17 @@
         <?php foreach ($communities as $community): ?>
             <div class="community-card">
                 <div class="community-image">
-                    <img src="/static/uploads/comunidades/<?php echo $community['img_perfil']; ?>" 
-                         alt="<?php echo $community['nm_comunidade']; ?>">
+                    <?php
+                        $fotoComunidade = !empty($community['img_perfil']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/static/uploads/comunidades/' . $community['img_perfil'])
+                            ? '/static/uploads/comunidades/' . $community['img_perfil']
+                            : '/static/uploads/comunidades/comunidade_placeholder.png';
+                    ?>
+                    <img src="<?php echo $fotoComunidade; ?>" 
+                         alt="<?php echo htmlspecialchars($community['nm_comunidade']); ?>">
                 </div>
                 <div class="community-info">
-                    <h3><?php echo $community['nm_comunidade']; ?></h3>
-                    <p><?php echo substr($community['ds_comunidade'], 0, 100) . '...'; ?></p>
+                    <h3 class="text-nowrap-truncate"><?php echo htmlspecialchars($community['nm_comunidade']); ?></h3>
+                    <p class="text-nowrap-truncate"><?php echo htmlspecialchars(substr($community['ds_comunidade'] ?? '', 0, 100) . '...'); ?></p>
                     <div class="community-footer">
                         <span class="members"><?php echo $community['total_membros'] ?? 0; ?> membros</span>
                         <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small">Conversar</a>

@@ -2813,3 +2813,101 @@ body {
     background-color: #8400ff;
     
 }
+/* ============================================
+   CORREÇÃO DEFINITIVA - TEXTOS ESTOURADOS
+   ============================================ */
+
+/* CORREÇÃO PARA O TÍTULO "Bem-vindo" */
+.dashboard-header h1 {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+}
+
+.dashboard-header h1 .text-nowrap-truncate-inline {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 250px !important;
+    display: inline-block !important;
+    vertical-align: bottom !important;
+    flex-shrink: 1 !important;
+    min-width: 50px !important;
+}
+
+/* CORREÇÃO PARA TÍTULOS DE COMUNIDADES */
+.community-card h3,
+.community-item h3,
+.community-details h3,
+.community-info h3,
+.community-card .community-title {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+/* CORREÇÃO PARA O CABEÇALHO "Minhas Comunidades" */
+.page-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    max-width: 100% !important;
+}
+
+.page-header h1 {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 70% !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.page-header .btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* CORREÇÃO PARA DESCRIÇÕES */
+.community-details p,
+.community-info p {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+}
+
+/* CORREÇÃO PARA O NOME DO USUÁRIO NA NAVBAR */
+.user-name {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 120px !important;
+    display: inline-block !important;
+}
+
+/* CLASSE UNIVERSAL */
+.text-nowrap-truncate {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+}
+
+.text-nowrap-truncate-inline {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 250px !important;
+    display: inline-block !important;
+    vertical-align: bottom !important;
+}

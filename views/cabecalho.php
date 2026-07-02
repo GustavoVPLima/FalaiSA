@@ -21,14 +21,17 @@
             <div class="user-profile">
                 <a href="/perfil">
                     <?php
-                    $fotoPerfil = $_SESSION['foto_perfil'] ?? 'perfilplaceholder.png';
-                    if ($fotoPerfil !== 'perfilplaceholder.png') {
+                    // Pega a foto de perfil usando o Auth
+                    $fotoPerfil = Auth::getFotoPerfil();
+                    if ($fotoPerfil !== 'perfilplaceholder.png' && file_exists($_SERVER['DOCUMENT_ROOT'] . '/static/uploads/usuarios/' . $fotoPerfil)) {
                         echo '<img src="/static/uploads/usuarios/' . $fotoPerfil . '" alt="Perfil" class="user-avatar">';
                     } else {
                         echo '<img src="/static/icons/perfilplaceholder.png" alt="Perfil" class="user-avatar">';
                     }
                     ?>
-                    <div class="user-name"><?php echo $_SESSION['usuario'] ?? 'Usuário'; ?></div>
+                    <div class="user-name">
+                        <?php echo htmlspecialchars(Auth::username() ?? 'Usuário'); ?>
+                    </div>
                 </a>
             </div>
 

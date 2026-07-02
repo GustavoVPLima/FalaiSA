@@ -34,9 +34,10 @@ class AuthController
         }
 
         if ($user) {
+            // Usa o método login do Auth que agora salva todos os dados
             Auth::login($user);
 
-            if ($user['tipo'] === 'admin') {
+            if (Auth::isAdmin()) {
                 View::redirect('/admin');
             } else {
                 View::redirect('/');
