@@ -35,17 +35,18 @@
             <div class="nav-menu">
                 <ul>
                     <li>
-                        <a href="/">
+                        <a href="/comunidades">
                             <span class="icon"><img src="/static/icons/comunidadesicon.png"></span>
                             <span>Comunidades</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/comunidades">
+                        <a href="/">
                             <span class="icon"><img src="/static/icons/usuarioicon.png"></span>
                             <span>Minhas comunidades</span>
                         </a>
                     </li>
+
                     <li>
                         <a href="/criarcomunidade">
                             <span class="icon"><img src="/static/icons/maisicon.png"></span>

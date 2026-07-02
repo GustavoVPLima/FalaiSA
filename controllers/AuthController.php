@@ -20,6 +20,11 @@ class AuthController
         $username = Request::post('usuario');
         $password = Request::post('senha');
 
+        // O login usa comparação exata no banco; normalizamos espaços
+        // para evitar falhas por entradas com espaços no início/fim.
+        $username = $username !== null ? trim((string) $username) : '';
+        $password = $password !== null ? trim((string) $password) : '';
+
         if (empty($username) || empty($password)) {
             $_SESSION['erro'] = 'Preencha todos os campos!';
             View::redirect('/login');

@@ -13,16 +13,16 @@
 <?php else: ?>
     <div class="communities-list">
         <?php foreach ($communities as $community): ?>
+            <?php $communityImage = !empty($community['img_perfil']) ? $community['img_perfil'] : 'comunidade_placeholder.png'; ?>
             <div class="community-item">
                 <div class="community-image">
-                    <img src="/static/uploads/comunidades/<?php echo $community['img_perfil']; ?>" 
+                    <img src="/static/uploads/comunidades/<?php echo $communityImage; ?>" 
                          alt="<?php echo $community['nm_comunidade']; ?>">
                 </div>
-                    <div class="community-details">
-                        <h3><?php echo $community['nm_comunidade']; ?></h3>
-                        <p><?php echo $community['ds_comunidade']; ?></p>
-                        <div class="community-actions">
-                           <div class="community-actions">
+                <div class="community-details">
+                    <h3><?php echo $community['nm_comunidade']; ?></h3>
+                    <p><?php echo $community['ds_comunidade']; ?></p>
+                    <div class="community-actions">
                         <?php
                             $isMember = ComunidadeDAO::isMember($_SESSION['id'], $community['id_comunidade']);
                         ?>
@@ -36,11 +36,10 @@
                         <!-- Botão para quem NÃO É membro -->
                             <a href="/comunidade/<?php echo $community['id_comunidade']; ?>/entrar" class="btn btn-success">Me Juntar à Comunidade</a>
                         <?php endif; ?>
-                    </div>     
+                    </div>
                 </div>
             </div>
-        </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
 </div>
 <?php endif; ?>
 
