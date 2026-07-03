@@ -1,13 +1,15 @@
 <?php include __DIR__ . '/../cabecalho.php'; ?>
 
 <div class="page-header">
-    <h1>Minhas Comunidades</h1>
+    <h1>Comunidades</h1>
+
     <a href="/criarcomunidade" class="btn btn-primary">+ Criar Comunidade</a>
 </div>
 
 <?php if (empty($communities)): ?>
     <div class="empty-state">
-        <p>Você não é membro de nenhuma comunidade ainda.</p>
+        <p>Nenhuma comunidade encontrada.</p>
+
         <a href="/criarcomunidade" class="btn btn-primary">Criar Comunidade</a>
     </div>
 <?php else: ?>
