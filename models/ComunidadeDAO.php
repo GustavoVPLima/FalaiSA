@@ -50,7 +50,9 @@ class ComunidadeDAO
 
     public static function getByUser($userId)
     {
-        $sql = "SELECT c.* FROM tb_comunidade c
+        $sql = "SELECT c.*, 
+                    (SELECT COUNT(*) FROM tb_usuario_comunidade WHERE id_comunidade = c.id_comunidade) as total_membros
+                FROM tb_comunidade c
                 INNER JOIN tb_usuario_comunidade uc ON c.id_comunidade = uc.id_comunidade
                 WHERE uc.id_usuario = ?
                 ORDER BY c.nm_comunidade";

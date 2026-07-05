@@ -24,7 +24,7 @@
                     <p><?php echo substr($community['ds_comunidade'], 0, 100) . '...'; ?></p>
                     <div class="community-footer">
                         <span class="members"><?php echo $community['total_membros'] ?? 0; ?> membros</span>
-                        <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small">Conversar</a>
+                        <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small btn-community btn-community-primary">Conversar</a>
                     </div>
                 </div>
             </div>

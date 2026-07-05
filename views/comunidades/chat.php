@@ -21,14 +21,24 @@
     <div class="chat-main">
         <div class="messages-container" id="messagesContainer">
             <?php foreach ($messages as $message): ?>
-                <div class="message <?php echo $message['id_chat_usuario'] == $_SESSION['id'] ? 'own' : ''; ?>">
-                    <img src="/static/uploads/usuarios/<?php echo $message['usuario_avatar']; ?>" 
-                         alt="<?php echo $message['usuario_nome']; ?>" class="message-avatar">
-                    <div class="message-content">
-                        <strong><?php echo $message['usuario_nome']; ?></strong>
+                <div class="message-row <?php echo $message['id_chat_usuario'] == $_SESSION['id'] ? 'own-message' : 'other-message'; ?>">
+                    <?php if ($message['id_chat_usuario'] != $_SESSION['id']): ?>
+                        <img src="/static/uploads/usuarios/<?php echo $message['usuario_avatar']; ?>"
+                             alt="<?php echo $message['usuario_nome']; ?>" class="message-avatar">
+                    <?php endif; ?>
+
+                    <div class="message-bubble">
+                        <div class="message-header">
+                            <strong><?php echo $message['id_chat_usuario'] == $_SESSION['id'] ? 'Você' : $message['usuario_nome']; ?></strong>
+                            <span class="message-time"><?php echo $message['dt_envio']; ?></span>
+                        </div>
                         <p><?php echo htmlspecialchars($message['mensagem']); ?></p>
-                        <small><?php echo $message['dt_envio']; ?></small>
                     </div>
+
+                    <?php if ($message['id_chat_usuario'] == $_SESSION['id']): ?>
+                        <img src="/static/uploads/usuarios/<?php echo $message['usuario_avatar']; ?>"
+                             alt="Seu avatar" class="message-avatar">
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -44,24 +54,65 @@
 </div>
 
 <script>
-    // Implementar chat em tempo real aqui
-    document.getElementById('messageForm').addEventListener('submit', function(e) {
+    const form = document.getElementById('messageForm');
+    const input = document.getElementById('messageInput');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    window.addEventListener('load', () => {
+        setTimeout(scrollToBottom, 50);
+    });
+
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const message = document.getElementById('messageInput').value;
+
+        const message = input.value.trim();
         const communityId = document.querySelector('input[name="community_id"]').value;
-        
-        // Enviar mensagem via AJAX
-        fetch('/chat/' + communityId + '/enviar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'mensagem=' + encodeURIComponent(message)
-        }).then(response => response.json()).then(data => {
-            document.getElementById('messageInput').value = '';
-            // Recarregar mensagens
-            location.reload();
-        });
+
+        if (!message) {
+            return;
+        }
+
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch('/chat/' + communityId + '/enviar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'mensagem=' + encodeURIComponent(message)
+            });
+
+            const data = await response.json();
+
+            if (data.sucesso) {
+                const ownMessage = document.createElement('div');
+                ownMessage.className = 'message-row own-message';
+                ownMessage.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-header">
+                            <strong>Você</strong>
+                            <span class="message-time">agora</span>
+                        </div>
+                        <p>${message}</p>
+                    </div>
+                    <img src="/static/uploads/usuarios/<?php echo $_SESSION['img_perfil'] ?? 'default.png'; ?>" alt="Seu avatar" class="message-avatar">
+                `;
+
+                messagesContainer.appendChild(ownMessage);
+                input.value = '';
+                requestAnimationFrame(scrollToBottom);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            submitButton.disabled = false;
+        }
     });
 </script>
 

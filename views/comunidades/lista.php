@@ -31,8 +31,8 @@
 
                         <?php if ($isMember): ?>
                         <!-- Botões para quem JÁ É membro -->
-                            <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small">Conversar</a>
-                            <a href="/comunidade/<?php echo $community['id_comunidade']; ?>" class="btn btn-small">Detalhes</a>
+                            <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small btn-community btn-community-primary">Conversar</a>
+                            <a href="/comunidade/<?php echo $community['id_comunidade']; ?>" class="btn btn-small btn-community btn-community-secondary">Detalhes</a>
                             <a href="/comunidade/<?php echo $community['id_comunidade']; ?>" class="btn btn-primary">Acessar Comunidade</a>
                         <?php else: ?>
                         <!-- Botão para quem NÃO É membro -->
