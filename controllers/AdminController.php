@@ -48,9 +48,10 @@ class AdminController
         Auth::check(true);
 
         if (Request::isPost()) {
-            ComunidadeDAO::delete($id);
+            ComunidadeDAO::deletarComunidade($id);
             $_SESSION['sucesso'] = 'Comunidade deletada!';
         }
+
 
         View::redirect('/admin/comunidades');
     }

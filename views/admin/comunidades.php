@@ -24,6 +24,7 @@
                     <td><?php echo $community['dt_criacao']; ?></td>
                     <td>
                         <form method="POST" action="/admin/comunidade/<?php echo $community['id_comunidade']; ?>/deletar" style="display:inline;">
+                            <input type="hidden" name="_method" value="POST">
                             <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Tem certeza?')">Deletar</button>
                         </form>
                     </td>

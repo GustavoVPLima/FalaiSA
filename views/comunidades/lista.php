@@ -33,7 +33,7 @@
                         <!-- Botões para quem JÁ É membro -->
                             <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-small btn-community btn-community-primary">Conversar</a>
                             <a href="/comunidade/<?php echo $community['id_comunidade']; ?>" class="btn btn-small btn-community btn-community-secondary">Detalhes</a>
-                            <a href="/comunidade/<?php echo $community['id_comunidade']; ?>" class="btn btn-primary">Acessar Comunidade</a>
+
                         <?php else: ?>
                         <!-- Botão para quem NÃO É membro -->
                             <a href="/comunidade/<?php echo $community['id_comunidade']; ?>/entrar" class="btn btn-success">Me Juntar à Comunidade</a>

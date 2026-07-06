@@ -105,6 +105,35 @@ class ComunidadeDAO
         return Database::execute("DELETE FROM tb_comunidade WHERE id_comunidade = ?", [$id]);
     }
 
+    // Remove comunidade + sua imagem (se existir) e registros de relacionamento
+    public static function deletarComunidade($id)
+    {
+        // Busca imagem antes de apagar
+        $community = self::findById($id);
+        if (!$community) {
+            return false;
+        }
+
+        // Remove relacionamentos primeiro (caso não exista ON DELETE CASCADE)
+        Database::execute(
+            "DELETE FROM tb_usuario_comunidade WHERE id_comunidade = ?",
+            [$id]
+        );
+
+        self::delete($id);
+
+        // Remove arquivo da imagem da comunidade
+        if (!empty($community['img_perfil'])) {
+            // placeholder não deve ser removido
+            if ($community['img_perfil'] !== 'comunidade_placeholder.png') {
+                File::delete($community['img_perfil'], 'comunidades');
+            }
+        }
+
+        return true;
+    }
+
+
     public static function removeMember($userId, $communityId)
     {
         return Database::execute(

@@ -32,7 +32,11 @@
             <a href="/chat/<?php echo $community['id_comunidade']; ?>" class="btn btn-primary">Conversar</a>
             <?php if ($community['criado_por'] == $_SESSION['id']): ?>
                 <a href="/comunidade/<?php echo $community['id_comunidade']; ?>/editar" class="btn btn-secondary">Editar</a>
-                <a href="/comunidade/<?php echo $community['id_comunidade']; ?>/deletar" class="btn btn-danger">Deletar</a>
+                <form method="POST" action="/comunidade/<?php echo $community['id_comunidade']; ?>/deletar" style="display:inline;">
+                    <input type="hidden" name="_method" value="POST">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja deletar?')">Deletar</button>
+                </form>
+
             <?php else: ?>
                 <a href="/comunidade/<?php echo $community['id_comunidade']; ?>/sair" class="btn btn-secondary">Sair</a>
             <?php endif; ?>
