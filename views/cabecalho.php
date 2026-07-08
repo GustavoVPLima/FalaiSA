@@ -6,6 +6,15 @@
     <title><?php echo isset($title) ? $title . ' - Falaí' : 'Falaí'; ?></title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="/static/icons/iconefalai.png" type="image/x-icon">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.className = 'theme-' + theme;
+        })();
+    </script>
 </head>
 <body>
     <div class="app-container">
@@ -56,7 +65,12 @@
                 </ul>
             </div>
 
+            
             <div class="nav-footer">
+                <button type="button" class="theme-toggle-btn" onclick="window.toggleTheme && window.toggleTheme()" aria-label="Alternar tema">
+                    <span class="theme-icon">🌓</span>
+                    <span class="theme-text">Modo Escuro</span>
+                </button>
                 <a href="/perfil">
                     <span class="icon"><img src="/static/icons/configicon.png"></span>
                     <span>Configurações</span>

@@ -73,11 +73,12 @@ class AuthController
         }
 
         $username = Request::post('usuario');
+        $telefone = Request::post('telefone');
         $email = Request::post('email');
         $password = Request::post('senha');
         $passwordConfirm = Request::post('senha_confirma');
 
-        if (empty($username) || empty($email) || empty($password)) {
+        if (empty($username) || empty($telefone) || empty($email) || empty($password)) {
             $_SESSION['erro'] = 'Preencha todos os campos!';
             View::redirect('/cadastro');
         }

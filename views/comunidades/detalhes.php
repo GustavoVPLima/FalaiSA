@@ -7,7 +7,7 @@
 <div class="community-details-container">
     <div class="community-header">
         <img src="/static/uploads/comunidades/<?php echo $community['img_perfil']; ?>" 
-             alt="<?php echo $community['nm_comunidade']; ?>" class="community-banner">
+             alt="" class="community-banner">
     </div>
 
     <div class="community-info-section">

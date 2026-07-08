@@ -19,11 +19,11 @@
             <div class="community-item">
                 <div class="community-image">
                     <img src="/static/uploads/comunidades/<?php echo $communityImage; ?>" 
-                         alt="<?php echo $community['nm_comunidade']; ?>">
+                         alt="">
                 </div>
                 <div class="community-details">
                     <h3><?php echo $community['nm_comunidade']; ?></h3>
-                    <p><?php echo $community['ds_comunidade']; ?></p>
+                    <p><?php echo substr($community['ds_comunidade'], 0, 100) . '...'; ?></p>
                     <div class="community-actions">
                         <?php
                             $isMember = ComunidadeDAO::isMember($_SESSION['id'], $community['id_comunidade']);

@@ -22,7 +22,7 @@ class CommunityController
             return $this->store();
         }
 
-        View::show('comunidades/form');
+        View::show('comunidades/cadastro');
     }
 
     public function store()

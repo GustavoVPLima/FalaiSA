@@ -6,26 +6,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Função para aplicar o tema
     function applyTheme(theme) {
-        if (theme === 'dark' || (!theme && prefersDarkScheme.matches)) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'light');
-        }
+        const resolvedTheme = theme === 'dark' || (!theme && prefersDarkScheme.matches) ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', resolvedTheme);
+        document.body.setAttribute('data-theme', resolvedTheme);
+        document.documentElement.className = 'theme-' + resolvedTheme;
     }
     
-    // Aplicar tema inicial
+    // Aplicar tema inicial ANTES de tudo
+    const initialTheme = savedTheme || (prefersDarkScheme.matches ? 'dark' : 'light');
+    const resolvedInitialTheme = initialTheme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', resolvedInitialTheme);
+    document.body.setAttribute('data-theme', resolvedInitialTheme);
+    document.documentElement.className = 'theme-' + resolvedInitialTheme;
+    if (savedTheme) localStorage.setItem('theme', resolvedInitialTheme);
+    
+    // Aplicar tema inicial após evento
     applyTheme(savedTheme);
     
     // Evento para mudar tema (será chamado dos botões)
     window.toggleTheme = function() {
-        const currentTheme = localStorage.getItem('theme');
-        let newTheme;
-        
-        if (currentTheme === 'light') {
-            newTheme = 'dark';
-        } else {
-            newTheme = 'light';
-        }
+        const currentTheme = document.documentElement.getAttribute('data-theme') ||
+            localStorage.getItem('theme') ||
+            (prefersDarkScheme.matches ? 'dark' : 'light');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
         localStorage.setItem('theme', newTheme);
         applyTheme(newTheme);

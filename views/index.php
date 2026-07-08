@@ -18,7 +18,7 @@
             <div class="community-card">
                 <div class="community-image">
                     <img src="/static/uploads/comunidades/<?php echo $community['img_perfil']; ?>" 
-                         alt="<?php echo $community['nm_comunidade']; ?>">
+                         alt="">
                 </div>
                 <div class="community-info">
                     <h3><?php echo $community['nm_comunidade']; ?></h3>
