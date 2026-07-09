@@ -42,21 +42,38 @@ class UsuarioDAO
         return Database::fetchAssoc($result);
     }
 
+    public static function findByEmail($email)
+    {
+        $result = Database::query(
+            "SELECT * FROM tb_usuario WHERE nm_email = ?",
+            [$email]
+        );
+
+        return Database::fetchAssoc($result);
+    }
+
+
     public static function create($data)
     {
-        $sql = "INSERT INTO tb_usuario (nm_login, ds_senha, nm_email, nr_numero, img_perfil, dt_cadastro)
-                VALUES (?, ?, ?, ?, ?, NOW())";
+        // Mantém compatibilidade com o schema.sql atual (tb_usuario não possui nr_numero).
+        // Usar apenas colunas existentes no tb_usuario.
+        // Mantém dt_criacao por padrão (default no schema real), e não referencia dt_cadastro/dt_criacao diretamente.
+        $sql = "INSERT INTO tb_usuario (nm_login, ds_senha, nm_email, img_perfil)
+                VALUES (?, ?, ?, ?)";
+
+
 
         Database::execute($sql, [
             $data['nm_login'],
             $data['ds_senha'],
             $data['nm_email'],
-            $data['nr_numero'],
             $data['img_perfil'] ?? 'perfilplaceholder.png'
         ]);
 
+
         return Database::lastInsertId();
     }
+
 
     public static function update($id, $data)
     {

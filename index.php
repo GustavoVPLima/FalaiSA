@@ -77,6 +77,9 @@ $router->get('/sobre', ['HomeController', 'about']);
 $router->get('/perfil', ['HomeController', 'userProfile']);
 $router->get('/perfil/editar', ['HomeController', 'editProfile']);
 $router->post('/perfil/atualizar', ['HomeController', 'updateProfile']);
+$router->get('/perfil/alterar-senha', ['HomeController', 'changePassword']);
+$router->post('/perfil/alterar-senha', ['HomeController', 'updatePassword']);
+
 
 // ========== Rotas de Comunidades ==========
 $router->get('/comunidades', ['CommunityController', 'index']);

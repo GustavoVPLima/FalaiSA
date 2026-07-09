@@ -5,27 +5,26 @@
 </div>
 
 <div class="chat-container">
-    <div class="chat-sidebar">
-        <h3>Membros (<?php echo count($members); ?>)</h3>
-        <div class="members-list">
-            <?php foreach ($members as $member): ?>
-                <div class="member-item">
-                    <img src="/static/uploads/usuarios/<?php echo $member['img_perfil']; ?>" 
-                         alt="<?php echo $member['nm_login']; ?>">
-                    <span><?php echo $member['nm_login']; ?></span>
-                </div>
-            <?php endforeach; ?>
+        <div class="chat-sidebar">
+            <h3>Membros (<?php echo count($members); ?>)</h3>
+            <div class="members-list">
+                <?php foreach ($members as $member): ?>
+                    <div class="member-item">
+                        <span><?php echo htmlspecialchars($member['nm_login']); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
-    </div>
+
 
     <div class="chat-main">
         <div class="messages-container" id="messagesContainer">
             <?php foreach ($messages as $message): ?>
                 <div class="message-row <?php echo $message['id_chat_usuario'] == $_SESSION['id'] ? 'own-message' : 'other-message'; ?>">
                     <?php if ($message['id_chat_usuario'] != $_SESSION['id']): ?>
-                        <img src="/static/uploads/usuarios/<?php echo $message['usuario_avatar']; ?>"
-                             alt="<?php echo $message['usuario_nome']; ?>" class="message-avatar">
+                        <?php /* Avatar removido */ ?>
                     <?php endif; ?>
+
 
                     <div class="message-bubble">
                         <div class="message-header">
@@ -36,9 +35,9 @@
                     </div>
 
                     <?php if ($message['id_chat_usuario'] == $_SESSION['id']): ?>
-                        <img src="/static/uploads/usuarios/<?php echo $message['usuario_avatar']; ?>"
-                             alt="Seu avatar" class="message-avatar">
+                        <?php /* Avatar removido */ ?>
                     <?php endif; ?>
+
                 </div>
             <?php endforeach; ?>
         </div>
@@ -101,8 +100,8 @@
                         </div>
                         <p>${message}</p>
                     </div>
-                    <img src="/static/uploads/usuarios/<?php echo $_SESSION['img_perfil'] ?? 'default.png'; ?>" alt="Seu avatar" class="message-avatar">
                 `;
+
 
                 messagesContainer.appendChild(ownMessage);
                 input.value = '';

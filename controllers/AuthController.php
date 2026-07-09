@@ -73,15 +73,17 @@ class AuthController
         }
 
         $username = Request::post('usuario');
-        $telefone = Request::post('telefone');
+        $numero = Request::post('numero');
         $email = Request::post('email');
         $password = Request::post('senha');
         $passwordConfirm = Request::post('senha_confirma');
 
-        if (empty($username) || empty($telefone) || empty($email) || empty($password)) {
+
+        if (empty($username) || empty($numero) || empty($email) || empty($password)) {
             $_SESSION['erro'] = 'Preencha todos os campos!';
             View::redirect('/cadastro');
         }
+
 
         if ($password !== $passwordConfirm) {
             $_SESSION['erro'] = 'Senhas não conferem!';
@@ -93,6 +95,12 @@ class AuthController
             View::redirect('/cadastro');
         }
 
+        // Evita erro de duplicidade por email (caso haja constraint/registro duplicado)
+        if (UsuarioDAO::findByEmail($email)) {
+            $_SESSION['erro'] = 'Email já está em uso!';
+            View::redirect('/cadastro');
+        }
+
         $data = [
             'nm_login' => $username,
             'nm_email' => $email,
@@ -100,6 +108,7 @@ class AuthController
         ];
 
         $userId = UsuarioDAO::create($data);
+
 
         if ($userId) {
             $_SESSION['sucesso'] = 'Conta criada com sucesso! Faça login.';
